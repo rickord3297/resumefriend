@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="520" viewBox="0 0 800 520" fill="none">
+  <rect width="800" height="520" rx="16" fill="#18181b"/>
+  <text x="40" y="56" fill="#fafafa" font-family="system-ui,sans-serif" font-size="22" font-weight="600">Resume Match</text>
+  <text x="40" y="86" fill="#71717a" font-family="system-ui,sans-serif" font-size="14">ATS score &amp; keyword gaps for your target role</text>
+  <rect x="40" y="120" width="200" height="48" rx="10" fill="#d4af37" fill-opacity="0.35"/>
+  <text x="88" y="150" fill="#18181b" font-family="system-ui,sans-serif" font-size="15" font-weight="600">Run match</text>
+  <rect x="280" y="120" width="480" height="340" rx="12" fill="#27272a" stroke="#3f3f46"/>
+  <circle cx="520" cy="240" r="64" stroke="#d4af37" stroke-width="6" fill="none"/>
+  <text x="490" y="248" fill="#fafafa" font-family="system-ui,sans-serif" font-size="28" font-weight="700">84</text>
+  <text x="448" y="300" fill="#a1a1aa" font-family="system-ui,sans-serif" font-size="13">Match score (demo)</text>
+  <rect x="320" y="328" width="400" height="12" rx="4" fill="#52525b"/>
+  <rect x="320" y="352" width="340" height="12" rx="4" fill="#3f3f46"/>
+  <rect x="320" y="376" width="380" height="12" rx="4" fill="#3f3f46"/>
+  <text x="320" y="420" fill="#fbbf24" font-family="system-ui,sans-serif" font-size="12" font-weight="600">Keyword gaps</text>
+  <rect x="320" y="432" width="72" height="22" rx="6" fill="#422006" stroke="#b45309" stroke-opacity="0.5"/>
+  <text x="332" y="447" fill="#fcd34d" font-family="system-ui,sans-serif" font-size="10">Stakeholder</text>
+  <rect x="402" y="432" width="56" height="22" rx="6" fill="#422006" stroke="#b45309" stroke-opacity="0.5"/>
+  <text x="410" y="447" fill="#fcd34d" font-family="system-ui,sans-serif" font-size="10">SQL</text>
+</svg>

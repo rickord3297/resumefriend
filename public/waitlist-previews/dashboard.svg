@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="520" viewBox="0 0 800 520" fill="none">
+  <rect width="800" height="520" rx="16" fill="#18181b"/>
+  <rect x="24" y="24" width="752" height="40" rx="8" fill="#27272a" stroke="#3f3f46"/>
+  <rect x="40" y="36" width="120" height="16" rx="4" fill="#d4af37" opacity="0.35"/>
+  <rect x="88" y="92" width="420" height="180" rx="12" fill="#27272a" stroke="#3f3f46"/>
+  <text x="108" y="128" fill="#a1a1aa" font-family="system-ui,sans-serif" font-size="14" font-weight="600">Smart Calendar</text>
+  <rect x="108" y="142" width="280" height="10" rx="3" fill="#52525b"/>
+  <rect x="108" y="162" width="240" height="10" rx="3" fill="#3f3f46"/>
+  <rect x="108" y="182" width="300" height="10" rx="3" fill="#3f3f46"/>
+  <rect x="532" y="92" width="244" height="180" rx="12" fill="#27272a" stroke="#d4af37" stroke-opacity="0.35"/>
+  <text x="552" y="128" fill="#a1a1aa" font-family="system-ui,sans-serif" font-size="14" font-weight="600">Quick Stats</text>
+  <circle cx="600" cy="175" r="36" stroke="#d4af37" stroke-width="3" fill="none" opacity="0.8"/>
+  <rect x="88" y="292" width="688" height="196" rx="12" fill="#27272a" stroke="#3f3f46"/>
+  <text x="108" y="328" fill="#a1a1aa" font-family="system-ui,sans-serif" font-size="14" font-weight="600">Performance Analytics</text>
+  <rect x="108" y="352" width="180" height="110" rx="8" fill="#09090b" stroke="#3f3f46"/>
+  <rect x="308" y="352" width="180" height="110" rx="8" fill="#09090b" stroke="#3f3f46"/>
+  <rect x="508" y="352" width="180" height="110" rx="8" fill="#09090b" stroke="#3f3f46"/>
+</svg>

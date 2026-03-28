@@ -159,6 +159,69 @@ export function WaitlistClient() {
           </div>
         </div>
 
+        <section
+          className="relative z-10 mx-auto mt-14 w-full max-w-5xl px-4 pb-4 sm:px-6 md:mt-20 md:px-8"
+          aria-labelledby="waitlist-previews-heading"
+        >
+          <h2
+            id="waitlist-previews-heading"
+            className="text-center text-lg font-semibold tracking-tight text-white sm:text-xl"
+          >
+            Inside the workspace
+          </h2>
+          <p className="mx-auto mt-2 max-w-2xl text-center text-sm text-zinc-400 sm:text-base">
+            Command Center dashboard, profile assets, and resume intelligence—built for one job search,
+            not ten browser tabs.
+          </p>
+          <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <figure className="group overflow-hidden rounded-2xl border border-zinc-800/80 bg-zinc-900/40 shadow-[0_0_0_1px_rgba(212,175,55,0.06)]">
+              <img
+                src="/waitlist-previews/dashboard.svg"
+                alt="Stylized preview of the Command Center dashboard with calendar and analytics."
+                width={800}
+                height={520}
+                className="w-full object-cover transition duration-300 group-hover:opacity-95"
+              />
+              <figcaption className="border-t border-zinc-800/80 px-4 py-3 text-center text-xs text-zinc-400 sm:text-sm">
+                <strong className="text-zinc-200">Command Center</strong> — prep windows, calendar, and
+                performance rings
+              </figcaption>
+            </figure>
+            <figure className="group overflow-hidden rounded-2xl border border-zinc-800/80 bg-zinc-900/40 shadow-[0_0_0_1px_rgba(212,175,55,0.06)]">
+              <img
+                src="/waitlist-previews/profile-resumes.svg"
+                alt="Stylized preview of Profile and Assets with resume list."
+                width={800}
+                height={520}
+                className="w-full object-cover transition duration-300 group-hover:opacity-95"
+              />
+              <figcaption className="border-t border-zinc-800/80 px-4 py-3 text-center text-xs text-zinc-400 sm:text-sm">
+                <strong className="text-zinc-200">Profile &amp; Assets</strong> — multiple resumes,
+                primary role, career DNA
+              </figcaption>
+            </figure>
+            <figure className="group overflow-hidden rounded-2xl border border-zinc-800/80 bg-zinc-900/40 shadow-[0_0_0_1px_rgba(212,175,55,0.06)] sm:col-span-2 lg:col-span-1">
+              <img
+                src="/waitlist-previews/resume-match.svg"
+                alt="Stylized preview of Resume Match score and keyword gaps."
+                width={800}
+                height={520}
+                className="w-full object-cover transition duration-300 group-hover:opacity-95"
+              />
+              <figcaption className="border-t border-zinc-800/80 px-4 py-3 text-center text-xs text-zinc-400 sm:text-sm">
+                <strong className="text-zinc-200">Resume Match</strong> — ATS-style score and keyword
+                gaps before you apply
+              </figcaption>
+            </figure>
+          </div>
+          <p className="mx-auto mt-6 max-w-xl text-center text-xs text-zinc-600">
+            Previews are stylized mocks. Swap in real screenshots by replacing the SVG files in{" "}
+            <code className="rounded bg-zinc-900 px-1.5 py-0.5 text-zinc-500">public/waitlist-previews/</code>{" "}
+            (same names) or point these <code className="rounded bg-zinc-900 px-1.5 py-0.5 text-zinc-500">&lt;img&gt;</code>{" "}
+            src attributes to your PNGs/WebPs.
+          </p>
+        </section>
+
         <footer className="relative z-10 mx-auto mt-auto flex max-w-2xl flex-wrap items-center justify-center gap-x-8 gap-y-2 px-4 pb-6 pt-8 text-sm text-zinc-500">
           <a
             href="/privacy"
