@@ -3,17 +3,21 @@
 @tailwind utilities;
 
 :root {
-  --bg: #0f0f12;
-  --slate-800: #1e293b;
-  --slate-700: #334155;
-  --surface: #18181c;
-  --surface-hover: #1f1f24;
-  --border: rgba(255, 255, 255, 0.06);
-  --text: #f4f4f5;
-  --muted: #94a3b8;
-  --accent: #a78bfa;
-  --accent-dim: rgba(167, 139, 250, 0.15);
-  --prep: #34d399;
+  /* Aligned with waitlist: zinc-950 base, gold (#d4af37) accents */
+  --bg: #09090b;
+  --slate-800: #27272a;
+  --slate-700: #3f3f46;
+  --surface: #18181b;
+  --surface-hover: #27272a;
+  --border: rgba(39, 39, 42, 0.85);
+  --text: #fafafa;
+  --muted: #a1a1aa;
+  --accent: #d4af37;
+  --accent-dim: rgba(212, 175, 55, 0.15);
+  --accent-bright: #f59e0b;
+  --accent-foreground: #09090b;
+  --prep: #fbbf24;
+  --success: #34d399;
   --sidebar-w: 240px;
 }
 
@@ -138,11 +142,16 @@ body {
   border-top: 1px solid var(--border);
 }
 
-/* Main content */
+/* Main content — soft gold wash like waitlist */
 .main-wrap {
   flex: 1;
   overflow: auto;
   padding: 1.5rem 2rem 2rem;
+  position: relative;
+  background-color: var(--bg);
+  background-image:
+    radial-gradient(ellipse 80% 55% at 50% -25%, rgba(212, 175, 55, 0.09), transparent 55%),
+    radial-gradient(ellipse 55% 45% at 95% 105%, rgba(212, 175, 55, 0.05), transparent 50%);
 }
 
 /* Home page */
@@ -423,7 +432,7 @@ body {
   font-weight: 600;
 }
 
-.drawer-badge-pass { background: rgba(52, 211, 153, 0.2); color: var(--prep); }
+.drawer-badge-pass { background: rgba(52, 211, 153, 0.2); color: var(--success); }
 .drawer-badge-fail { background: rgba(239, 68, 68, 0.2); color: #f87171; }
 .drawer-badge-needs_work { background: rgba(251, 191, 36, 0.2); color: #fbbf24; }
 
@@ -449,7 +458,7 @@ body {
   text-align: center;
   font-weight: 600;
   font-size: 0.9375rem;
-  color: var(--bg);
+  color: var(--accent-foreground);
   background: var(--accent);
   border-radius: 10px;
   text-decoration: none;
@@ -462,8 +471,8 @@ body {
 }
 
 .drawer-cta-primary {
-  background: var(--prep);
-  color: var(--bg);
+  background: linear-gradient(90deg, #d97706, #d4af37);
+  color: var(--accent-foreground);
   margin-bottom: 0.5rem;
 }
 .drawer-cta-primary:hover {
@@ -500,16 +509,18 @@ body {
   padding: 0.625rem 1rem;
   border-radius: 8px;
   border: none;
-  background: var(--accent);
-  color: var(--bg);
+  background: linear-gradient(90deg, #d97706, #d4af37);
+  color: var(--accent-foreground);
   font-weight: 600;
   font-size: 0.9375rem;
   cursor: pointer;
-  transition: opacity 0.2s;
+  transition: opacity 0.2s, filter 0.15s;
+  box-shadow: 0 0 40px -8px rgba(212, 175, 55, 0.22);
 }
 
 .btn-primary:hover:not(:disabled) {
   opacity: 0.95;
+  filter: brightness(1.05);
 }
 
 .btn-primary:disabled {
@@ -598,8 +609,8 @@ body {
 }
 
 .nudge-banner {
-  background: linear-gradient(135deg, rgba(167, 139, 250, 0.12) 0%, rgba(52, 211, 153, 0.08) 100%);
-  border: 1px solid var(--prep);
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.14) 0%, rgba(212, 175, 55, 0.05) 55%, rgba(9, 9, 11, 0.4) 100%);
+  border: 1px solid rgba(212, 175, 55, 0.35);
   border-radius: 12px;
   padding: 1rem 1.25rem;
   margin-bottom: 1.5rem;
@@ -785,7 +796,7 @@ body {
   margin-left: 2px;
   display: inline-flex;
 }
-.ring-trend.up { color: var(--prep); }
+.ring-trend.up { color: var(--accent-bright); }
 .ring-trend.down { color: #f87171; }
 .ring-trend.flat { color: var(--muted); }
 .ring-label {
@@ -820,7 +831,7 @@ body {
   background: var(--surface-hover);
   border-color: var(--muted);
 }
-.outcome-btn.nailed:hover:not(:disabled) { border-color: var(--prep); background: rgba(52, 211, 153, 0.1); }
+.outcome-btn.nailed:hover:not(:disabled) { border-color: var(--success); background: rgba(52, 211, 153, 0.1); }
 .outcome-btn.average:hover:not(:disabled) { border-color: var(--accent); background: var(--accent-dim); }
 .outcome-btn.stumbled:hover:not(:disabled) { border-color: #f87171; background: rgba(248, 113, 113, 0.1); }
 
@@ -915,7 +926,7 @@ body {
   font-size: 0.9375rem;
   color: var(--muted);
 }
-.sync-check { color: var(--prep); }
+.sync-check { color: var(--success); }
 .sync-dot {
   width: 10px;
   height: 10px;
