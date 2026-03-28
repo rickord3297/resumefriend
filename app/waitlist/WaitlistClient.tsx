@@ -66,7 +66,7 @@ export function WaitlistClient() {
         <div className="mx-auto w-full max-w-2xl flex-1">
           <div className="rounded-2xl border border-zinc-800/80 bg-zinc-900/60 p-8 shadow-gold-glow backdrop-blur-sm sm:p-10 md:p-12">
             <p className="mb-4 text-center text-xs font-semibold uppercase tracking-[0.2em] text-amber-500/90">
-              Entity Mapping Repository
+              Interview IQ
             </p>
 
             {status === "success" ? (
@@ -79,8 +79,8 @@ export function WaitlistClient() {
                     You&apos;re on the list!
                   </h1>
                   <p className="mt-3 text-sm text-zinc-400 sm:text-base">
-                    We&apos;ll reach out when early access opens. Know someone who needs clean CRM
-                    data? Spread the word.
+                    We&apos;ll email you when early access opens. Know someone job hunting who
+                    could use a smarter resume workflow? Send them this page.
                   </p>
                 </div>
                 <a
@@ -97,11 +97,12 @@ export function WaitlistClient() {
               <>
                 <header className="text-center">
                   <h1 className="text-3xl font-semibold leading-tight tracking-tight text-white sm:text-4xl md:text-[2.5rem] md:leading-tight">
-                    The Definitive Entity Mapping Repository
+                    Your AI copilot for resumes, applications &amp; interviews
                   </h1>
                   <p className="mx-auto mt-5 max-w-xl text-base leading-relaxed text-zinc-400 sm:text-lg">
-                    Stop fighting messy CRM data. Access AI-verified golden records for over 20M
-                    companies.
+                    Tailor your resume to each role, keep applications organized, and practice
+                    answers—without living inside a dozen tabs. We&apos;re opening early access to
+                    candidates who want automation that actually saves time.
                   </p>
                 </header>
 
@@ -115,7 +116,7 @@ export function WaitlistClient() {
                       type="email"
                       name="email"
                       autoComplete="email"
-                      placeholder="you@company.com"
+                      placeholder="you@email.com"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       disabled={status === "loading"}
@@ -133,7 +134,7 @@ export function WaitlistClient() {
                         </>
                       ) : (
                         <>
-                          Get Early Access
+                          Join the waitlist
                           <ArrowRight className="h-4 w-4" aria-hidden />
                         </>
                       )}
@@ -168,14 +169,7 @@ export function WaitlistClient() {
           <span className="hidden text-zinc-700 sm:inline" aria-hidden>
             ·
           </span>
-          <a
-            href="https://www.linkedin.com/groups"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="transition hover:text-amber-400/90 focus:outline-none focus:text-amber-400"
-          >
-            RevOps Community
-          </a>
+          <span className="text-zinc-600">Resume Friend · Interview IQ</span>
         </footer>
       </main>
     </div>
