@@ -656,6 +656,55 @@ body {
 .event-title { display: block; font-weight: 500; }
 .event-time { font-size: 0.8125rem; color: var(--muted); }
 
+.calendar-upcoming-label { margin-top: 1rem; }
+.bento-list-compact li {
+  padding: 0.35rem 0;
+  font-size: 0.875rem;
+}
+.demo-seed-block {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+.btn-demo-seed {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--text);
+  background: var(--bg);
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+.btn-demo-seed:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.btn-demo-seed:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.demo-seed-hint {
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin: 0.5rem 0 0;
+  line-height: 1.45;
+}
+.code-inline {
+  font-size: 0.7rem;
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+.demo-seed-error {
+  font-size: 0.8125rem;
+  color: #f87171;
+  margin: 0.5rem 0 0;
+}
+
 .bento-calendar { grid-column: 1; grid-row: 1; }
 .bento-stats { grid-column: 2; grid-row: 1; }
 .bento-activity { grid-column: 1; grid-row: 2; }
@@ -833,7 +882,13 @@ body {
   margin-bottom: 0.5rem;
 }
 .resume-item.primary { border-color: var(--accent); }
-.resume-name { font-weight: 500; }
+.resume-name { font-weight: 500; flex: 1; min-width: 0; }
+.resume-item-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-shrink: 0;
+}
 .resume-badge {
   font-size: 0.75rem;
   font-weight: 600;

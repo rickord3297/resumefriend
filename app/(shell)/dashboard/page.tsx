@@ -51,6 +51,8 @@ export default function DashboardPage() {
   const [pendingOutcomes, setPendingOutcomes] = useState<{ calendarEventId: string; eventTitle: string; eventEnd: string }[]>([]);
   const [loading, setLoading] = useState(true);
   const [submittingOutcome, setSubmittingOutcome] = useState<string | null>(null);
+  const [seedingDemo, setSeedingDemo] = useState(false);
+  const [seedError, setSeedError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -109,6 +111,41 @@ export default function DashboardPage() {
     }
   }
 
+  async function loadDemoData() {
+    setSeedingDemo(true);
+    setSeedError(null);
+    try {
+      const res = await fetch("/api/demo/seed", { method: "POST" });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error((data as { error?: string }).error ?? "Could not load demo data");
+      }
+      const [stateRes, metricsRes, activityRes, edgeRes, pendingRes] = await Promise.all([
+        fetch("/api/dashboard/state"),
+        fetch("/api/analytics/metrics"),
+        fetch("/api/analytics/activity"),
+        fetch("/api/edge"),
+        fetch("/api/analytics/pending-outcomes"),
+      ]);
+      const [stateData, metricsData, activityData, edgeData, pendingData] = await Promise.all([
+        stateRes.json(),
+        metricsRes.json(),
+        activityRes.json(),
+        edgeRes.json(),
+        pendingRes.json(),
+      ]);
+      if (stateData.prepModeWindows != null) setState(stateData);
+      if (metricsData.responseRate != null) setMetrics(metricsData);
+      if (activityData.items) setActivity(activityData.items);
+      if (edgeData.tips) setEdgeTips(edgeData.tips);
+      if (pendingData.pending) setPendingOutcomes(pendingData.pending);
+    } catch (e) {
+      setSeedError(e instanceof Error ? e.message : "Demo seed failed");
+    } finally {
+      setSeedingDemo(false);
+    }
+  }
+
   if (loading) {
     return (
       <main className="dashboard-wrap">
@@ -125,8 +162,23 @@ export default function DashboardPage() {
   }
 
   const activePrep = state.prepModeWindows.find(isInPrepWindow);
-  const today = new Date().toDateString();
-  const todayWindows = state.prepModeWindows.filter((w) => new Date(w.eventStart).toDateString() === today);
+  const startOfToday = new Date();
+  startOfToday.setHours(0, 0, 0, 0);
+  const endOfToday = new Date(startOfToday);
+  endOfToday.setHours(23, 59, 59, 999);
+  const weekEnd = new Date(startOfToday);
+  weekEnd.setDate(weekEnd.getDate() + 7);
+
+  const today = startOfToday.toDateString();
+  const todayWindows = state.prepModeWindows.filter(
+    (w) => new Date(w.eventStart).toDateString() === today
+  );
+  const upcomingWindows = state.prepModeWindows
+    .filter((w) => {
+      const t = new Date(w.eventStart).getTime();
+      return t > endOfToday.getTime() && t <= weekEnd.getTime();
+    })
+    .sort((a, b) => new Date(a.eventStart).getTime() - new Date(b.eventStart).getTime());
 
   return (
     <main className="dashboard-wrap">
@@ -219,6 +271,37 @@ export default function DashboardPage() {
                 ))}
               </ul>
             )}
+            <p className="bento-label calendar-upcoming-label">Next 7 days</p>
+            {upcomingWindows.length === 0 ? (
+              <p className="bento-muted">No upcoming interviews this week.</p>
+            ) : (
+              <ul className="bento-list bento-list-compact">
+                {upcomingWindows.map((w) => (
+                  <li key={w.id}>
+                    <span className="event-title">{w.eventTitle}</span>
+                    <span className="event-time">{formatTime(w.eventStart)}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+            {state.demoSeedAllowed ? (
+              <div className="demo-seed-block">
+                <button
+                  type="button"
+                  className="btn-demo-seed"
+                  onClick={loadDemoData}
+                  disabled={seedingDemo}
+                >
+                  {seedingDemo ? "Loading sample data…" : "Load sample interviews & resumes"}
+                </button>
+                <p className="demo-seed-hint">
+                  Fills Smart Calendar, Quick Stats, Activity, and Profile with demo data (this machine /
+                  preview deploy with{" "}
+                  <code className="code-inline">ALLOW_DEMO_SEED=1</code>).
+                </p>
+                {seedError ? <p className="demo-seed-error">{seedError}</p> : null}
+              </div>
+            ) : null}
           </div>
         </div>
 

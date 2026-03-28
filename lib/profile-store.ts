@@ -93,3 +93,50 @@ export async function setLinkedInConnected(connected: boolean): Promise<void> {
   profile.linkedInConnected = connected;
   await setProfile(profile);
 }
+
+/** Add sample resumes (demo_*) for screenshots; keeps real uploads, replaces prior demo rows. */
+export async function seedDemoResumes(): Promise<Profile> {
+  const profile = await getProfile();
+  const kept = profile.resumes.filter((r) => !r.id.startsWith("demo_"));
+  const hadPrimary = kept.some((r) => r.isPrimary);
+  const t = new Date().toISOString();
+  const demos: ProfileResume[] = [
+    {
+      id: "demo_res_pm",
+      name: "Alex Rivera — Product Manager",
+      url: "/demo-resumes/alex-rivera-pm.html",
+      isPrimary: false,
+      uploadedAt: t,
+    },
+    {
+      id: "demo_res_eng",
+      name: "Jordan Chen — Senior Software Engineer",
+      url: "/demo-resumes/jordan-chen-engineer.html",
+      isPrimary: false,
+      uploadedAt: t,
+    },
+    {
+      id: "demo_res_em",
+      name: "Sam Okonkwo — Engineering Manager",
+      url: "/demo-resumes/sam-okonkwo-em.html",
+      isPrimary: false,
+      uploadedAt: t,
+    },
+  ];
+  if (!hadPrimary) {
+    if (kept.length === 0) demos[0].isPrimary = true;
+    else kept[0].isPrimary = true;
+  }
+  profile.resumes = [...kept, ...demos];
+  profile.careerDNA = {
+    ...profile.careerDNA,
+    targetJobTitles: profile.careerDNA.targetJobTitles?.length
+      ? profile.careerDNA.targetJobTitles
+      : ["Product Manager", "Senior Engineer", "Engineering Manager"],
+    salaryMin: profile.careerDNA.salaryMin ?? 160000,
+    salaryMax: profile.careerDNA.salaryMax ?? 220000,
+    yearsExperience: profile.careerDNA.yearsExperience ?? 8,
+  };
+  await setProfile(profile);
+  return profile;
+}

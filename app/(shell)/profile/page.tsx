@@ -74,17 +74,29 @@ export default function ProfilePage() {
             {profile.resumes.map((r) => (
               <li key={r.id} className={`resume-item ${r.isPrimary ? "primary" : ""}`}>
                 <span className="resume-name">{r.name}</span>
-                {r.isPrimary ? (
-                  <span className="resume-badge">Primary</span>
-                ) : (
-                  <button
-                    type="button"
-                    className="btn-text"
-                    onClick={() => setPrimary(r.id)}
-                  >
-                    Set as primary
-                  </button>
-                )}
+                <div className="resume-item-actions">
+                  {r.url ? (
+                    <a
+                      href={r.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn-text resume-view"
+                    >
+                      View
+                    </a>
+                  ) : null}
+                  {r.isPrimary ? (
+                    <span className="resume-badge">Primary</span>
+                  ) : (
+                    <button
+                      type="button"
+                      className="btn-text"
+                      onClick={() => setPrimary(r.id)}
+                    >
+                      Set as primary
+                    </button>
+                  )}
+                </div>
               </li>
             ))}
           </ul>

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getDashboardState } from "@/lib/dashboard-store";
+import { isDemoSeedAllowed } from "@/lib/demo-seed";
 
 /**
  * GET /api/dashboard/state
@@ -8,7 +9,10 @@ import { getDashboardState } from "@/lib/dashboard-store";
 export async function GET() {
   try {
     const state = await getDashboardState();
-    return NextResponse.json(state);
+    return NextResponse.json({
+      ...state,
+      demoSeedAllowed: isDemoSeedAllowed(),
+    });
   } catch (e) {
     return NextResponse.json(
       { error: e instanceof Error ? e.message : "Failed to load state" },

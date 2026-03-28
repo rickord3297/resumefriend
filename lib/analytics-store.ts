@@ -95,6 +95,120 @@ export async function addActivity(item: Omit<ActivityItem, "id">): Promise<void>
   await writeJson(ACTIVITY_FILE, items.slice(0, 200));
 }
 
+const DEMO_ID = (prefix: string, slug: string) => `demo_${prefix}_${slug}`;
+
+/**
+ * Replace demo_* analytics rows with a fresh sample set (for screenshots / local testing).
+ * Non-demo rows are unchanged.
+ */
+export async function mergeDemoAnalytics(): Promise<void> {
+  await ensureDir();
+  const keptApps = (await getApplications()).filter((a) => !a.id.startsWith("demo_"));
+  const keptComms = (await getCommunications()).filter((c) => !c.id.startsWith("demo_"));
+  const keptActivity = (await readJson<ActivityItem[]>(ACTIVITY_FILE, [])).filter(
+    (a) => !a.id.startsWith("demo_")
+  );
+  const keptInterviews = (await getInterviews()).filter((i) => !i.id.startsWith("demo_"));
+
+  const now = Date.now();
+  const day = DAY_MS;
+  const demoApps: JobApplication[] = [
+    {
+      id: DEMO_ID("app", "1"),
+      company: "Northwind Labs",
+      role: "Senior Product Manager",
+      appliedAt: new Date(now - 4 * day).toISOString(),
+      status: "interview",
+      salaryRangeMin: 165000,
+      salaryRangeMax: 195000,
+      source: "LinkedIn",
+    },
+    {
+      id: DEMO_ID("app", "2"),
+      company: "Stellar AI",
+      role: "Staff Engineer",
+      appliedAt: new Date(now - 9 * day).toISOString(),
+      status: "interview",
+      salaryRangeMin: 200000,
+      salaryRangeMax: 240000,
+    },
+    {
+      id: DEMO_ID("app", "3"),
+      company: "Blue Harbor",
+      role: "Engineering Manager",
+      appliedAt: new Date(now - 12 * day).toISOString(),
+      status: "applied",
+    },
+    {
+      id: DEMO_ID("app", "4"),
+      company: "Kite Systems",
+      role: "Product Lead",
+      appliedAt: new Date(now - 18 * day).toISOString(),
+      status: "offer",
+    },
+    {
+      id: DEMO_ID("app", "5"),
+      company: "Oakridge",
+      role: "Principal PM",
+      appliedAt: new Date(now - 2 * day).toISOString(),
+      status: "applied",
+    },
+  ];
+
+  const demoComms: Communication[] = [
+    {
+      id: DEMO_ID("comm", "1"),
+      applicationId: DEMO_ID("app", "1"),
+      type: "interview_invitation",
+      at: new Date(now - 2 * day).toISOString(),
+      summary: "Phone screen — Thursday",
+    },
+    {
+      id: DEMO_ID("comm", "2"),
+      applicationId: DEMO_ID("app", "2"),
+      type: "interview_invitation",
+      at: new Date(now - 5 * day).toISOString(),
+      summary: "Recruiter intro scheduled",
+    },
+    {
+      id: DEMO_ID("comm", "3"),
+      applicationId: DEMO_ID("app", "4"),
+      type: "offer",
+      at: new Date(now - 1 * day).toISOString(),
+      summary: "Verbal offer — details to follow",
+    },
+  ];
+
+  const demoActivity: ActivityItem[] = [
+    {
+      id: DEMO_ID("act", "1"),
+      at: new Date(now - 20 * 60 * 1000).toISOString(),
+      type: "match_run",
+      title: "Resume match — Northwind Labs",
+      meta: "Score 84",
+    },
+    {
+      id: DEMO_ID("act", "2"),
+      at: new Date(now - 3 * 60 * 60 * 1000).toISOString(),
+      type: "application_tracked",
+      title: "Application logged",
+      meta: "Stellar AI",
+    },
+    {
+      id: DEMO_ID("act", "3"),
+      at: new Date(now - 26 * 60 * 60 * 1000).toISOString(),
+      type: "follow_up_drafted",
+      title: "Follow-up draft ready",
+      meta: "Blue Harbor",
+    },
+  ];
+
+  await writeJson(APPLICATIONS_FILE, [...keptApps, ...demoApps]);
+  await writeJson(COMMUNICATIONS_FILE, [...keptComms, ...demoComms]);
+  await writeJson(ACTIVITY_FILE, [...demoActivity, ...keptActivity].slice(0, 200));
+  await writeJson(INTERVIEWS_FILE, keptInterviews);
+}
+
 export function computeMetrics(
   applications: JobApplication[],
   communications: Communication[],

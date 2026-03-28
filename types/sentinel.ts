@@ -49,4 +49,6 @@ export interface CalendarAvailability {
 export interface DashboardState {
   prepModeWindows: PrepModeWindow[];
   lastUpdated: string; // ISO
+  /** Set only on GET /api/dashboard/state when demo seeding is allowed. */
+  demoSeedAllowed?: boolean;
 }
