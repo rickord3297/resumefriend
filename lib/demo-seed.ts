@@ -1,7 +1,7 @@
 import { getDashboardState, setDashboardState } from "@/lib/dashboard-store";
 import { mergeDemoAnalytics } from "@/lib/analytics-store";
 import { seedDemoResumes } from "@/lib/profile-store";
-import type { PrepModeWindow } from "@/types/sentinel";
+import type { PrepModeWindow, InboxSignal } from "@/types/sentinel";
 
 const PREP_MINUTES = 30;
 
@@ -52,6 +52,68 @@ export async function replaceDemoPrepWindows(): Promise<void> {
   await setDashboardState(state);
 }
 
+export function buildDemoInboxSignals(now: Date): InboxSignal[] {
+  const t = now.toISOString();
+  const tomorrow = new Date(now);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  tomorrow.setHours(11, 0, 0, 0);
+  return [
+    {
+      threadId: "demo_thread_invite",
+      subject: "Northwind Labs — Interview availability",
+      from: "recruiting@northwind.demo",
+      snippet: "We would like to schedule a 45-minute technical interview. Please share slots.",
+      classification: "Interview Request",
+      sentiment: "positive",
+      summary: "Recruiter asking for interview availability — positive momentum.",
+      scannedAt: t,
+      suggestedEventStart: tomorrow.toISOString(),
+      suggestedEventTitle: "Northwind Labs — technical interview",
+    },
+    {
+      threadId: "demo_thread_status",
+      subject: "Application received — Stellar AI",
+      from: "talent@stellar.demo",
+      snippet: "Thanks for applying. Your profile is under review with the hiring manager.",
+      classification: "Status Update",
+      sentiment: "neutral",
+      summary: "Application acknowledged; still in review.",
+      scannedAt: t,
+    },
+    {
+      threadId: "demo_thread_reject",
+      subject: "Update on your application",
+      from: "hiring@oakridge.demo",
+      snippet: "We will not be moving forward at this time. We appreciate your interest.",
+      classification: "Rejection",
+      sentiment: "negative",
+      summary: "Closed loop — role not moving forward.",
+      scannedAt: t,
+    },
+    {
+      threadId: "demo_thread_followup",
+      subject: "Following up",
+      from: "jane.smith@blueharbor.demo",
+      snippet: "Just checking if you had a chance to review the take-home instructions.",
+      classification: "Follow-up",
+      sentiment: "mixed",
+      summary: "Recruiter nudge on take-home — respond when ready.",
+      scannedAt: t,
+    },
+  ];
+}
+
+/** Replace only demo_* inbox rows and add fresh demo signals (for POST …?demo=1). */
+export async function seedDemoInboxOnly(): Promise<void> {
+  const state = await getDashboardState();
+  const kept = state.inboxSignals.filter((s) => !s.threadId.startsWith("demo_thread_"));
+  const now = new Date();
+  state.inboxSignals = [...buildDemoInboxSignals(now), ...kept].slice(0, 30);
+  state.lastInboxScanAt = now.toISOString();
+  state.lastUpdated = now.toISOString();
+  await setDashboardState(state);
+}
+
 export function isDemoSeedAllowed(): boolean {
   return (
     process.env.NODE_ENV === "development" ||
@@ -63,4 +125,5 @@ export async function runFullDemoSeed(): Promise<void> {
   await replaceDemoPrepWindows();
   await mergeDemoAnalytics();
   await seedDemoResumes();
+  await seedDemoInboxOnly();
 }

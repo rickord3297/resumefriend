@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getDashboardState } from "@/lib/dashboard-store";
 import { isDemoSeedAllowed } from "@/lib/demo-seed";
+import { isGoogleConfigured } from "@/lib/sentinel/config";
 
 /**
  * GET /api/dashboard/state
@@ -12,6 +13,7 @@ export async function GET() {
     return NextResponse.json({
       ...state,
       demoSeedAllowed: isDemoSeedAllowed(),
+      inboxScanAvailable: isGoogleConfigured(),
     });
   } catch (e) {
     return NextResponse.json(

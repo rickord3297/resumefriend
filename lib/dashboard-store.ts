@@ -7,6 +7,7 @@ const STATE_FILE = path.join(STATE_DIR, "dashboard-state.json");
 
 const defaultState: DashboardState = {
   prepModeWindows: [],
+  inboxSignals: [],
   lastUpdated: new Date().toISOString(),
 };
 
@@ -23,6 +24,7 @@ export async function getDashboardState(): Promise<DashboardState> {
       ...defaultState,
       ...state,
       prepModeWindows: state.prepModeWindows ?? [],
+      inboxSignals: state.inboxSignals ?? [],
     };
   } catch {
     return { ...defaultState };

@@ -1,7 +1,14 @@
 /**
- * Email classification from Sentinel LLM
+ * Email classification from Sentinel LLM / inbox scan
  */
-export type EmailClassification = "Interview Request" | "Rejection" | "Follow-up";
+export type EmailClassification =
+  | "Interview Request"
+  | "Rejection"
+  | "Follow-up"
+  | "Status Update";
+
+/** How the recruiter / email reads emotionally for the job seeker */
+export type EmailSentiment = "positive" | "neutral" | "negative" | "mixed";
 
 export interface ClassifiedEmail {
   threadId: string;
@@ -11,6 +18,24 @@ export interface ClassifiedEmail {
   subject: string;
   classification: EmailClassification;
   classifiedAt: string; // ISO
+  sentiment?: EmailSentiment;
+  /** Short line for activity feed / dashboard */
+  summary?: string;
+}
+
+/** Latest inbox intelligence shown on the dashboard (persisted). */
+export interface InboxSignal {
+  threadId: string;
+  subject: string;
+  from: string;
+  snippet: string;
+  classification: EmailClassification;
+  sentiment: EmailSentiment;
+  summary: string;
+  scannedAt: string;
+  /** If the model inferred a concrete start time from the email body */
+  suggestedEventStart?: string;
+  suggestedEventTitle?: string;
 }
 
 /**
@@ -49,6 +74,11 @@ export interface CalendarAvailability {
 export interface DashboardState {
   prepModeWindows: PrepModeWindow[];
   lastUpdated: string; // ISO
+  /** Gmail-derived classifications + sentiment (Smart Calendar / inbox strip). */
+  inboxSignals: InboxSignal[];
+  lastInboxScanAt?: string;
   /** Set only on GET /api/dashboard/state when demo seeding is allowed. */
   demoSeedAllowed?: boolean;
+  /** Set only on GET /api/dashboard/state when Gmail scan is available. */
+  inboxScanAvailable?: boolean;
 }

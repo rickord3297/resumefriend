@@ -7,7 +7,7 @@
  */
 
 import { getThreadDetails, listHistorySince, getCurrentHistoryId } from "./gmail";
-import { classifyEmail } from "./classifier";
+import { classifyEmailInsight } from "./classifier";
 import { syncInterviewPrepWindows } from "./calendar";
 import { generateAndSaveDraft } from "./action-engine";
 import { getDashboardState } from "@/lib/dashboard-store";
@@ -73,19 +73,21 @@ export async function runSentinel(options: SentinelRunOptions = {}): Promise<Sen
       for (const threadId of threadIds) {
         const details = await getThreadDetails(threadId);
         if (!details) continue;
-        const classification = await classifyEmail({
+        const insight = await classifyEmailInsight({
           snippet: details.snippet,
           from: details.from,
           subject: details.subject,
         });
         const classified: ClassifiedEmail = {
           ...details,
-          classification,
+          classification: insight.classification,
           classifiedAt: new Date().toISOString(),
+          sentiment: insight.sentiment,
+          summary: insight.summary,
         };
         result.emailsClassified.push(classified);
 
-        if (classification === "Interview Request" && options.calendarAvailability) {
+        if (insight.classification === "Interview Request" && options.calendarAvailability) {
           const { draftId } = await generateAndSaveDraft({
             threadId: details.threadId,
             subject: details.subject,
@@ -123,7 +125,7 @@ export {
   getThreadDetails,
   createDraftReply,
 } from "./gmail";
-export { classifyEmail } from "./classifier";
+export { classifyEmail, classifyEmailInsight } from "./classifier";
 export { syncInterviewPrepWindows, getCalendarClient } from "./calendar";
 export { generateAndSaveDraft } from "./action-engine";
 export { sentinelConfig, isGoogleConfigured, isOpenAIConfigured } from "./config";

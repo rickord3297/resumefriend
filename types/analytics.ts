@@ -46,7 +46,13 @@ export interface Interview {
 export interface ActivityItem {
   id: string;
   at: string; // ISO
-  type: "resume_analyzed" | "follow_up_drafted" | "application_tracked" | "interview_outcome" | "match_run";
+  type:
+    | "resume_analyzed"
+    | "follow_up_drafted"
+    | "application_tracked"
+    | "interview_outcome"
+    | "match_run"
+    | "inbox_signal";
   title: string;
   meta?: string; // e.g. company name
 }

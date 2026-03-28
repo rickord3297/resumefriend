@@ -109,6 +109,23 @@ export async function getThreadDetails(threadId: string): Promise<{
 }
 
 /**
+ * List recent inbox threads (for dashboard inbox scan). Uses Gmail query
+ * `newer_than:30d` scoped to INBOX.
+ */
+export async function listRecentInboxThreads(maxResults = 20): Promise<string[]> {
+  const gmail = await getGmailClient();
+  const res = await gmail.users.threads.list({
+    userId: "me",
+    labelIds: ["INBOX"],
+    maxResults,
+    q: "newer_than:30d",
+  });
+  return (res.data.threads ?? [])
+    .map((t) => t.id)
+    .filter((id): id is string => typeof id === "string" && id.length > 0);
+}
+
+/**
  * Create a draft reply in the given thread using the provided body (plain text).
  */
 export async function createDraftReply(

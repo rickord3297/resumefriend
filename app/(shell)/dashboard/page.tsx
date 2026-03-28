@@ -1,11 +1,23 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { DashboardState, PrepModeWindow } from "@/types/sentinel";
+import type { DashboardState, PrepModeWindow, InboxSignal } from "@/types/sentinel";
 import type { PerformanceMetrics } from "@/types/analytics";
 import type { ActivityItem } from "@/types/analytics";
-import { Calendar, BarChart3, Activity, Sparkles } from "lucide-react";
+import { Calendar, BarChart3, Activity, Sparkles, Mail, RefreshCw } from "lucide-react";
 import { RingProgress } from "@/components/RingProgress";
+
+const EMPTY_METRICS: PerformanceMetrics = {
+  totalApplications: 0,
+  responseRate: 0,
+  ghostingRate: 0,
+  interviewToOfferRate: 0,
+  interviewSuccessRate: 0,
+  marketAlignment: 0,
+  responseRateTrend: "flat",
+  interviewSuccessTrend: "flat",
+  marketAlignmentTrend: "flat",
+};
 
 function formatTime(iso: string) {
   return new Date(iso).toLocaleString(undefined, {
@@ -53,6 +65,8 @@ export default function DashboardPage() {
   const [submittingOutcome, setSubmittingOutcome] = useState<string | null>(null);
   const [seedingDemo, setSeedingDemo] = useState(false);
   const [seedError, setSeedError] = useState<string | null>(null);
+  const [scanningInbox, setScanningInbox] = useState(false);
+  const [scanError, setScanError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -74,7 +88,8 @@ export default function DashboardPage() {
           pendingRes.json(),
         ]);
         if (stateData.prepModeWindows != null) setState(stateData);
-        if (metricsData.responseRate != null) setMetrics(metricsData);
+        if (typeof metricsData.responseRate === "number") setMetrics(metricsData);
+        else setMetrics(EMPTY_METRICS);
         if (activityData.items) setActivity(activityData.items);
         if (edgeData.tips) setEdgeTips(edgeData.tips);
         if (pendingData.pending) setPendingOutcomes(pendingData.pending);
@@ -104,7 +119,7 @@ export default function DashboardPage() {
         fetch("/api/analytics/activity"),
       ]);
       const [metricsData, activityData] = await Promise.all([metricsRes.json(), activityRes.json()]);
-      if (metricsData.responseRate != null) setMetrics(metricsData);
+      if (typeof metricsData.responseRate === "number") setMetrics(metricsData);
       if (activityData.items) setActivity(activityData.items);
     } finally {
       setSubmittingOutcome(null);
@@ -135,7 +150,8 @@ export default function DashboardPage() {
         pendingRes.json(),
       ]);
       if (stateData.prepModeWindows != null) setState(stateData);
-      if (metricsData.responseRate != null) setMetrics(metricsData);
+      if (typeof metricsData.responseRate === "number") setMetrics(metricsData);
+      else if (!metricsRes.ok) setMetrics(EMPTY_METRICS);
       if (activityData.items) setActivity(activityData.items);
       if (edgeData.tips) setEdgeTips(edgeData.tips);
       if (pendingData.pending) setPendingOutcomes(pendingData.pending);
@@ -144,6 +160,54 @@ export default function DashboardPage() {
     } finally {
       setSeedingDemo(false);
     }
+  }
+
+  async function refreshDashboardState() {
+    const [stateRes, activityRes, pendingRes, metricsRes] = await Promise.all([
+      fetch("/api/dashboard/state"),
+      fetch("/api/analytics/activity"),
+      fetch("/api/analytics/pending-outcomes"),
+      fetch("/api/analytics/metrics"),
+    ]);
+    const [stateData, activityData, pendingData, metricsData] = await Promise.all([
+      stateRes.json(),
+      activityRes.json(),
+      pendingRes.json(),
+      metricsRes.json(),
+    ]);
+    if (stateData.prepModeWindows != null) setState(stateData);
+    if (activityData.items) setActivity(activityData.items);
+    if (pendingData.pending) setPendingOutcomes(pendingData.pending);
+    if (typeof metricsData.responseRate === "number") setMetrics(metricsData);
+    else setMetrics(EMPTY_METRICS);
+  }
+
+  async function runInboxScan(demo: boolean) {
+    setScanningInbox(true);
+    setScanError(null);
+    try {
+      const url = demo ? "/api/dashboard/scan-inbox?demo=1" : "/api/dashboard/scan-inbox";
+      const res = await fetch(url, { method: "POST" });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || (data as { ok?: boolean }).ok === false) {
+        throw new Error((data as { error?: string }).error ?? "Inbox scan failed");
+      }
+      await refreshDashboardState();
+    } catch (e) {
+      setScanError(e instanceof Error ? e.message : "Scan failed");
+    } finally {
+      setScanningInbox(false);
+    }
+  }
+
+  function sentimentLabel(s: InboxSignal["sentiment"]): string {
+    const map = {
+      positive: "Positive",
+      neutral: "Neutral",
+      negative: "Negative",
+      mixed: "Mixed",
+    } as const;
+    return map[s];
   }
 
   if (loading) {
@@ -160,6 +224,9 @@ export default function DashboardPage() {
       </main>
     );
   }
+
+  const displayMetrics = metrics ?? EMPTY_METRICS;
+  const inboxSignals = state.inboxSignals ?? [];
 
   const activePrep = state.prepModeWindows.find(isInPrepWindow);
   const startOfToday = new Date();
@@ -180,8 +247,22 @@ export default function DashboardPage() {
     })
     .sort((a, b) => new Date(a.eventStart).getTime() - new Date(b.eventStart).getTime());
 
+  const inboxWithTime = inboxSignals.filter((s) => {
+    if (!s.suggestedEventStart) return false;
+    const t = new Date(s.suggestedEventStart).getTime();
+    return !Number.isNaN(t) && t > Date.now() - 24 * 60 * 60 * 1000;
+  });
+
   return (
     <main className="dashboard-wrap">
+      <header className="dashboard-page-header">
+        <h1 className="dashboard-page-title">Command Center</h1>
+        <p className="dashboard-page-lead">
+          Smart Calendar merges <strong>Google Calendar</strong> interviews with <strong>Gmail</strong> scans.
+          Run an inbox scan to detect interview requests, rejections, status updates, and sentiment.
+        </p>
+      </header>
+
       {pendingOutcomes.length > 0 && (
         <div className="outcome-banner">
           <strong>How did it go?</strong>
@@ -228,37 +309,78 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {metrics && (
-        <section className="analytics-section">
-          <h2 className="analytics-title">Performance Analytics</h2>
-          <div className="ring-row">
-            <RingProgress
-              value={metrics.responseRate}
-              label="Response Rate"
-              trend={metrics.responseRateTrend}
-            />
-            <RingProgress
-              value={metrics.interviewSuccessRate}
-              label="Interview Success"
-              trend={metrics.interviewSuccessTrend}
-            />
-            <RingProgress
-              value={metrics.marketAlignment}
-              label="Market Alignment"
-              trend={metrics.marketAlignmentTrend}
-            />
-          </div>
-        </section>
-      )}
+      <section className="analytics-section">
+        <h2 className="analytics-title">Performance Analytics</h2>
+        <div className="ring-row">
+          <RingProgress
+            value={displayMetrics.responseRate}
+            label="Response Rate"
+            trend={displayMetrics.responseRateTrend}
+          />
+          <RingProgress
+            value={displayMetrics.interviewSuccessRate}
+            label="Interview Success"
+            trend={displayMetrics.interviewSuccessTrend}
+          />
+          <RingProgress
+            value={displayMetrics.marketAlignment}
+            label="Market Alignment"
+            trend={displayMetrics.marketAlignmentTrend}
+          />
+        </div>
+      </section>
 
       <div className="bento">
-        <div className="bento-cell bento-calendar">
+        <div className="bento-cell bento-calendar bento-calendar-wide">
           <div className="bento-header">
             <Calendar size={18} />
             <h2>Smart Calendar</h2>
           </div>
           <div className="bento-body">
-            <p className="bento-label">Today&apos;s interviews</p>
+            <div className="inbox-scan-toolbar">
+              <div className="inbox-scan-buttons">
+                {state.inboxScanAvailable ? (
+                  <button
+                    type="button"
+                    className="btn-inbox-scan"
+                    onClick={() => runInboxScan(false)}
+                    disabled={scanningInbox}
+                  >
+                    <RefreshCw size={16} className={scanningInbox ? "animate-spin" : ""} aria-hidden />
+                    {scanningInbox ? "Scanning Gmail…" : "Scan inbox now"}
+                  </button>
+                ) : (
+                  <p className="inbox-scan-unavailable">
+                    <Mail size={16} aria-hidden />
+                    Connect Google (<code className="code-inline">GOOGLE_*</code> +{" "}
+                    <code className="code-inline">OPENAI_API_KEY</code> for best accuracy) to scan invites
+                    and rejections.
+                  </p>
+                )}
+                {state.demoSeedAllowed && (
+                  <button
+                    type="button"
+                    className="btn-inbox-scan secondary"
+                    onClick={() => runInboxScan(true)}
+                    disabled={scanningInbox}
+                  >
+                    Demo inbox scan
+                  </button>
+                )}
+              </div>
+              {state.lastInboxScanAt && (
+                <p className="inbox-scan-meta">
+                  Last inbox sync: {formatTime(state.lastInboxScanAt)}
+                </p>
+              )}
+              {scanError && (
+                <p className="demo-seed-error" role="alert">
+                  {scanError}
+                </p>
+              )}
+            </div>
+
+            <p className="bento-label">Google Calendar — today</p>
             {todayWindows.length === 0 ? (
               <p className="bento-muted">No interviews today.</p>
             ) : (
@@ -271,7 +393,7 @@ export default function DashboardPage() {
                 ))}
               </ul>
             )}
-            <p className="bento-label calendar-upcoming-label">Next 7 days</p>
+            <p className="bento-label calendar-upcoming-label">Google Calendar — next 7 days</p>
             {upcomingWindows.length === 0 ? (
               <p className="bento-muted">No upcoming interviews this week.</p>
             ) : (
@@ -284,6 +406,57 @@ export default function DashboardPage() {
                 ))}
               </ul>
             )}
+
+            <p className="bento-label calendar-upcoming-label">From Gmail — inferred times</p>
+            {inboxWithTime.length === 0 ? (
+              <p className="bento-muted">
+                No upcoming times parsed from email yet. Scan inbox; interview mails sometimes
+                include a proposed slot (shown here when detected).
+              </p>
+            ) : (
+              <ul className="bento-list bento-list-compact">
+                {inboxWithTime.map((s) => (
+                  <li key={s.threadId}>
+                    <span className="event-title">
+                      {s.suggestedEventTitle ?? s.subject}
+                      <span className={`classification-tag tag-${s.classification.replace(/\s+/g, "-").toLowerCase()}`}>
+                        {s.classification}
+                      </span>
+                    </span>
+                    <span className="event-time">
+                      {s.suggestedEventStart && formatTime(s.suggestedEventStart)}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+
+            <p className="bento-label calendar-upcoming-label">Inbox intelligence</p>
+            {inboxSignals.length === 0 ? (
+              <p className="bento-muted">
+                No signals yet. Scan pulls recent threads and labels each with type + sentiment.
+              </p>
+            ) : (
+              <ul className="inbox-signal-list">
+                {inboxSignals.map((s) => (
+                  <li key={s.threadId} className="inbox-signal-item">
+                    <div className="inbox-signal-top">
+                      <span className={`sentiment-dot sentiment-${s.sentiment}`} title={sentimentLabel(s.sentiment)} />
+                      <span className="inbox-signal-subject">{s.subject || "(No subject)"}</span>
+                    </div>
+                    <div className="inbox-signal-meta">
+                      <span className={`classification-chip chip-${s.classification.replace(/\s+/g, "-").toLowerCase()}`}>
+                        {s.classification}
+                      </span>
+                      <span className={`sentiment-pill sentiment-${s.sentiment}`}>{sentimentLabel(s.sentiment)}</span>
+                    </div>
+                    <p className="inbox-signal-summary">{s.summary}</p>
+                    <p className="inbox-signal-from">{s.from}</p>
+                  </li>
+                ))}
+              </ul>
+            )}
+
             {state.demoSeedAllowed ? (
               <div className="demo-seed-block">
                 <button
@@ -313,7 +486,7 @@ export default function DashboardPage() {
           <div className="bento-body">
             <div className="stat-row">
               <span className="bento-muted">Total apps</span>
-              <span className="stat-value">{metrics?.totalApplications ?? "—"}</span>
+              <span className="stat-value">{displayMetrics.totalApplications}</span>
             </div>
             <div className="stat-row">
               <span className="bento-muted">Active interviews</span>
