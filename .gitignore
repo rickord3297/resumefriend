@@ -1,0 +1,13 @@
+# dependencies
+node_modules
+# next
+.next
+# env
+.env
+.env.local
+.env*.local
+# data (local dashboard state and history id)
+data/
+# misc
+*.log
+.DS_Store
