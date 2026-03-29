@@ -8,8 +8,6 @@ import {
   BrainCircuit,
   MessageCircle,
   User,
-  Home,
-  Calendar,
   FileSearch,
   Briefcase,
   ClipboardList,
@@ -23,10 +21,7 @@ const navItems = [
     label: "Command Center",
     icon: LayoutDashboard,
     href: "/",
-    children: [
-      { href: "/", label: "Home", icon: Home },
-      { href: "/dashboard", label: "Smart Calendar", icon: Calendar },
-    ],
+    children: [{ href: "/", label: "Overview", icon: LayoutDashboard }],
   },
   {
     id: "match-lab",
